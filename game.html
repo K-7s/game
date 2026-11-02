@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>game</title>
+<style>
+body { background: #222; color: #fff; text-align: center; font-family: monospace; }
+canvas { background: #111; border: 2px solid #fff; }
+</style>
+</head>
+<body>
+
+<h2>My Game</h2>
+<canvas id="c" width="600" height="600"></canvas>
+
+<script>
+let canvas = document.getElementById("c");
+let ctx = canvas.getContext("2d");
+
+let x = 250;
+let y = 540;
+let w = 70;
+let h = 20;
+
+let balls = [{x: Math.random()*550, y: 0, s: 4}];
+let score = 0;
+let over = false;
+
+let right = false;
+let left = false;
+
+window.addEventListener("keydown", function(e) {
+    if(e.key == "ArrowRight") right = true;
+    if(e.key == "ArrowLeft") left = true;
+    if(over && e.key == "r") location.reload();
+});
+
+window.addEventListener("keyup", function(e) {
+    if(e.key == "ArrowRight") right = false;
+    if(e.key == "ArrowLeft") left = false;
+});
+
+function loop() {
+    if(!over) {
+        if(right && x < 530) x += 8;
+        if(left && x > 0) x -= 8;
+
+        ctx.clearRect(0, 0, 600, 600);
+        
+        ctx.fillStyle = "blue";
+        ctx.fillRect(x, y, w, h);
+
+        ctx.fillStyle = "red";
+        for(let i=0; i<balls.length; i++) {
+            balls[i].y += balls[i].s;
+            ctx.beginPath();
+            ctx.arc(balls[i].x, balls[i].y, 15, 0, Math.PI*2);
+            ctx.fill();
+
+            if(balls[i].y > 600) {
+                balls[i].y = 0;
+                balls[i].x = Math.random() * 550;
+                score++;
+                if(score % 5 == 0) {
+                    balls.push({x: Math.random()*550, y: 0, s: 4 + (score*0.1)});
+                }
+            }
+
+            if(x < balls[i].x && x + w > balls[i].x && y < balls[i].y + 15 && y + h > balls[i].y - 15) {
+                over = true;
+            }
+        }
+
+        ctx.fillStyle = "white";
+        ctx.font = "20px Arial";
+        ctx.fillText("Score: " + score, 20, 30);
+    } else {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, 600, 600);
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.fillText("GAME OVER - Press R", 150, 300);
+    }
+    requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
+</body>
+</html>
